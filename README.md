@@ -1,0 +1,291 @@
+[index (1).html](https://github.com/user-attachments/files/28113133/index.1.html)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jobsite SDS Inventory</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px;
+    background: #f4f5f7;
+    color: #1a1a1a;
+    line-height: 1.5;
+  }
+  header {
+    background: #1f3a5f;
+    color: white;
+    padding: 18px 16px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header .sub { font-size: 13px; opacity: 0.85; }
+  .compliance-note {
+    background: #fff4e0;
+    border-left: 4px solid #d97706;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .search-box {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 1px solid #d0d3d8;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    background: white;
+  }
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border-left: 4px solid #1f3a5f;
+  }
+  .card.flammable { border-left-color: #d32f2f; }
+  .card.corrosive { border-left-color: #b91c1c; }
+  .card.health { border-left-color: #c2410c; }
+  .card.consumer { border-left-color: #059669; }
+  .card .name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 2px;
+    color: #111;
+  }
+  .card .mfr {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 8px;
+  }
+  .card .use {
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .pictos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  .picto {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fef2f2;
+    color: #991b1b;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .picto.mild {
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  .hazards {
+    font-size: 12px;
+    color: #444;
+    background: #fafafa;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  .hazards strong { color: #991b1b; }
+  .sds-btn {
+    display: block;
+    background: #1f3a5f;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .sds-btn:active { background: #15294a; }
+  .emergency {
+    font-size: 11px;
+    color: #666;
+    margin-top: 8px;
+    text-align: center;
+  }
+  .emergency a {
+    color: #991b1b;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: #777;
+    margin-top: 20px;
+    padding: 14px;
+    line-height: 1.6;
+  }
+  .no-results {
+    text-align: center;
+    color: #777;
+    padding: 30px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Jobsite Chemical Inventory</h1>
+  <div class="sub">Tap a chemical to view its Safety Data Sheet (SDS)</div>
+</header>
+
+<div class="compliance-note">
+  <strong>⚠ Backup SDSs available on-site.</strong> If you cannot load an SDS here, ask your foreman for the printed binder. Per OSHA 29 CFR 1910.1200, SDSs must be readily accessible at all times.
+</div>
+
+<input type="text" id="search" class="search-box" placeholder="Search chemicals..." oninput="filterChems()">
+
+<div id="chemList"></div>
+
+<footer>
+  Last updated: <span id="lastUpdate">2026</span><br>
+  Maintained per OSHA 29 CFR 1910.1200 Hazard Communication Standard<br>
+  For questions, contact your Safety Manager
+</footer>
+
+<script>
+const chemicals = [
+  {
+    name: "Five Star LPL-HF Pile Jacket Epoxy Grout — Component A (Resin)",
+    mfr: "Five Star Products, Inc.",
+    use: "Epoxy resin (Part A) for marine pile encapsulation",
+    pictos: ["exclamation", "environment"],
+    hazards: "Skin sensitizer. May cause eye/skin irritation. Toxic to aquatic life with long-lasting effects.",
+    sdsUrl: "https://www.fivestarproducts.com/resources/sds/",
+    emergency: "VelocityEHS 1-800-255-3924",
+    severity: "health"
+  },
+  {
+    name: "Five Star LPL-HF Pile Jacket Epoxy Grout — Component B (Hardener)",
+    mfr: "Five Star Products, Inc.",
+    use: "Epoxy hardener (Part B) for marine pile encapsulation",
+    pictos: ["corrosion", "exclamation", "health"],
+    hazards: "Causes severe skin burns and eye damage. Skin sensitizer. May cause respiratory irritation.",
+    sdsUrl: "https://www.fivestarproducts.com/resources/sds/",
+    emergency: "VelocityEHS 1-800-255-3924",
+    severity: "corrosive"
+  },
+  {
+    name: "Klean-Strip Xylene",
+    mfr: "W.M. Barr & Co.",
+    use: "Solvent — thins epoxies and enamels",
+    pictos: ["flame", "health", "exclamation"],
+    hazards: "Highly flammable liquid and vapor. May be fatal if swallowed and enters airways. Causes skin and eye irritation. May cause drowsiness or dizziness.",
+    sdsUrl: "https://www.wmbarr.com/safety-data-sheets/",
+    emergency: "3E Emergency 1-800-451-8346",
+    severity: "flammable"
+  },
+  {
+    name: "SealBoss 15X Accelerator",
+    mfr: "SealBoss Corp.",
+    use: "Catalyst for 1510/1570 water stop foam PU",
+    pictos: ["exclamation"],
+    hazards: "Causes skin and eye irritation. May cause an allergic skin reaction. Combustible liquid.",
+    sdsUrl: "https://sealboss.com/resource-page/",
+    emergency: "SealBoss 714-662-4445",
+    severity: "health"
+  },
+  {
+    name: "Simpson Strong-Tie CI-P (Paste-Over Epoxy)",
+    mfr: "Simpson Strong-Tie Company, Inc.",
+    use: "2-part structural repair epoxy for crack injection ports",
+    pictos: ["exclamation", "health"],
+    hazards: "May cause an allergic skin reaction. Causes serious eye irritation. Skin irritation.",
+    sdsUrl: "https://www.strongtie.com/sds",
+    emergency: "1-800-535-5053 (24h US/Canada)",
+    severity: "health"
+  },
+  {
+    name: "Tide Liquid Laundry Detergent",
+    mfr: "Procter & Gamble",
+    use: "Laundry detergent — used for washing work clothes and shop rags",
+    pictos: ["mild-irritant"],
+    hazards: "Eye irritation. May cause mild skin irritation with prolonged contact. Keep out of reach of children. If swallowed, rinse mouth and drink water — do not induce vomiting.",
+    sdsUrl: "https://pgproductsafety.com/PGProductSafety/index.fhtml",
+    emergency: "P&G 1-800-879-8433 / CHEMTREC 1-800-424-9300",
+    severity: "consumer"
+  },
+  {
+    name: "Dawn Ultra Dishwashing Liquid",
+    mfr: "Procter & Gamble",
+    use: "Dish/equipment degreaser — also used for parts washing and oil spill cleanup",
+    pictos: ["mild-irritant"],
+    hazards: "Causes eye irritation (GHS Category 2B). Mild, transient skin irritation possible with prolonged exposure. If swallowed, drink water — do not induce vomiting.",
+    sdsUrl: "https://pgproductsafety.com/PGProductSafety/index.fhtml",
+    emergency: "CHEMTREC 1-800-424-9300",
+    severity: "consumer"
+  }
+];
+
+const pictoLabels = {
+  flame: "Flammable",
+  exclamation: "Irritant",
+  health: "Health hazard",
+  corrosion: "Corrosive",
+  skull: "Acute toxicity",
+  gascylinder: "Gas under pressure",
+  environment: "Environmental",
+  explosion: "Explosive",
+  oxidizer: "Oxidizer",
+  "mild-irritant": "Mild irritant"
+};
+
+function renderChems(list) {
+  const el = document.getElementById('chemList');
+  if (list.length === 0) {
+    el.innerHTML = '<div class="no-results">No chemicals match your search.</div>';
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const pictoHtml = c.pictos.map(p => {
+      const cls = p === 'mild-irritant' ? 'picto mild' : 'picto';
+      return '<span class="' + cls + '">⚠ ' + pictoLabels[p] + '</span>';
+    }).join('');
+    return `
+      <div class="card ${c.severity}">
+        <div class="name">${c.name}</div>
+        <div class="mfr">${c.mfr}</div>
+        <div class="use">${c.use}</div>
+        <div class="pictos">${pictoHtml}</div>
+        <div class="hazards"><strong>Hazards:</strong> ${c.hazards}</div>
+        <a class="sds-btn" href="${c.sdsUrl}" target="_blank" rel="noopener">View Full SDS →</a>
+        <div class="emergency">Emergency: <a href="tel:${c.emergency.replace(/[^0-9]/g, '')}">${c.emergency}</a></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterChems() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const filtered = chemicals.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    c.mfr.toLowerCase().includes(q) ||
+    c.use.toLowerCase().includes(q)
+  );
+  renderChems(filtered);
+}
+
+renderChems(chemicals);
+</script>
+
+</body>
+</html>
